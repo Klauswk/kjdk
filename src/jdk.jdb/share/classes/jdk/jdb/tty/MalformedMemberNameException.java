@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2011, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,32 +23,25 @@
  * questions.
  */
 
-/**
- * Internal API for line editing
- *
- * @since 9
+/*
+ * This source code is provided to illustrate the usage of a given feature
+ * or technique and has been deliberately simplified. Additional steps
+ * required for a production-quality application, such as security checks,
+ * input validation and proper error handling, might not be present in
+ * this sample code.
  */
-module jdk.internal.le {
-    exports jdk.internal.org.jline.keymap to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.reader to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.reader.impl to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.reader.impl.completer to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.reader.impl.history to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.terminal.impl to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.terminal to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.utils to
-        jdk.jshell, jdk.jdb;
-    exports jdk.internal.org.jline.terminal.spi to
-        jdk.jshell, jdk.jdb;
 
-    uses jdk.internal.org.jline.terminal.spi.JnaSupport;
 
+package jdk.jdb.tty;
+
+class MalformedMemberNameException extends Exception {
+    private static final long serialVersionUID = 7759071468833196630L;
+
+    public MalformedMemberNameException() {
+        super();
+    }
+
+    public MalformedMemberNameException(String s) {
+        super(s);
+    }
 }
-
