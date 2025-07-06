@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 public class VMNotConnectedException extends RuntimeException {
 

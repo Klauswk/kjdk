@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 import com.sun.jdi.ThreadGroupReference;
 import com.sun.jdi.ThreadReference;

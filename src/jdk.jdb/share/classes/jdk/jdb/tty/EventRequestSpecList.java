@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.event.ClassPrepareEvent;

@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.*;

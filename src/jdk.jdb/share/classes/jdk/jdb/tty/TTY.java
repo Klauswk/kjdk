@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 import com.sun.jdi.*;
 import com.sun.jdi.event.*;
@@ -42,8 +42,33 @@ import com.sun.jdi.connect.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.*;
+import java.util.stream.*;
+import java.util.function.Supplier;
+
+import jdk.internal.org.jline.reader.*;
+import jdk.internal.org.jline.reader.impl.completer.*;
+
+import jdk.internal.org.jline.terminal.Terminal;
+import jdk.internal.org.jline.terminal.TerminalBuilder;
 
 public class TTY implements EventNotifier {
+    /**
+     * Commands that are repeatable on empty input.
+     */
+    protected static final Set<String> REPEATABLE = Set.of(
+        "up", "down", "step", "stepi", "next", "cont", "list", "pop", "reenter"
+    );
+
+    /**
+     * Commands that reset the default source line to be displayed by {@code list}.
+     */
+    protected static final Set<String> LIST_RESET = Set.of(
+        "start", "run", "suspend", "resume", "up", "down", "kill", "interrupt", "threadgroup", "step", "stepi", "next", "cont",
+        "pop", "reenter"
+    );
+
+    String currentClassName = null;
+
     EventHandler handler = null;
 
     /**
@@ -58,6 +83,8 @@ public class TTY implements EventNotifier {
     private static final String progname = "jdb";
 
     private volatile boolean shuttingDown = false;
+
+    private static String linePrefix = ">";
 
     public void setShuttingDown(boolean s) {
        shuttingDown = s;
@@ -786,10 +813,90 @@ public class TTY implements EventNotifier {
                 }
             }
 
+            String[] simplifiedCommands = Stream.of(commandList).map(arg -> arg[0])
+              .filter(arg -> arg.length() > 2)
+              .toArray(String[]::new);
+
+            StringsCompleter baseCommandsCompleter = new StringsCompleter(simplifiedCommands);
+
+            Supplier<Collection<String>> autoCompleteOptions = () -> {
+              return Env.specList.eventRequestSpecs().stream()
+              .filter(spec -> spec instanceof BreakpointSpec)
+              .map(spec -> spec.toString())
+              .map(spec -> spec.replace("breakpoint ", ""))
+              .collect(Collectors.toList());
+            };
+
+            Supplier<Collection<String>> autoCompleteClasses = () -> {
+              List<String> loadedClasses = Env.vm().allClasses().stream()
+              .map(spec -> spec.name())
+              .collect(Collectors.toList());
+
+              return loadedClasses;
+            };
+            
+            Supplier<Collection<String>> autoCompleteMethods= () -> {
+              if (currentClassName == null) { 
+                return Collections.emptyList();
+              }
+
+              ReferenceType cls = Env.getReferenceTypeFromToken(currentClassName);
+
+              if (cls != null) {
+                List<String> methods = cls.allMethods().stream()
+                  .map(spec -> cls.name() + "." + spec.name())
+                  .collect(Collectors.toList());
+
+                return methods;
+              }
+
+              return Collections.emptyList(); 
+
+            };
+
+            StringsCompleter breakPointCompleter = new StringsCompleter(autoCompleteOptions);
+            
+            StringsCompleter classCompleter = new StringsCompleter(autoCompleteClasses);
+
+            StringsCompleter methodCompleter = new StringsCompleter(autoCompleteMethods);
+
+
+            Completer completer = new Completer() {
+                @Override
+                public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+                  String buffer = line.line();                  
+                  
+                  if (buffer.contains("#")) {
+                      currentClassName = buffer.substring(buffer.indexOf(" ") + 1, buffer.lastIndexOf("#"));
+                      methodCompleter.complete(reader,line, candidates);
+                  }
+                  else if (buffer.startsWith("clear")) {
+                    breakPointCompleter.complete(reader, line, candidates);
+                  } else if (buffer.startsWith("class") || buffer.startsWith("methods") || buffer.startsWith("fields")) {
+                    classCompleter.complete(reader, line, candidates);
+                  } else if (buffer.startsWith("break")) {
+                    classCompleter.complete(reader, line, candidates);
+                  } else if (buffer.startsWith("sourcepath") || buffer.startsWith("run")) {
+                  } else {
+                    baseCommandsCompleter.complete(reader, line, candidates);
+                  }
+                }
+            };
+
+            LineReader lineReader = LineReaderBuilder.builder()
+              .completer(completer).build();
+
             // Process interactive commands.
             MessageOutput.printPrompt();
             while (true) {
-                String ln = in.readLine();
+                String ln = null;
+                try {
+                  ln = lineReader.readLine("").trim();
+                } catch (UserInterruptException ex) {
+                  ex.printStackTrace();
+                } catch (EndOfFileException ex) {
+                  ex.printStackTrace();
+                }
                 if (ln == null) {
                     /*
                      *  Jdb is being shutdown because debuggee exited, ignore any 'null'
@@ -898,7 +1005,7 @@ public class TTY implements EventNotifier {
         String connectSpec = null;
 
         MessageOutput.textResources = ResourceBundle.getBundle
-            ("jdk.jdb.tty.TTYResources",
+            ("jdk.jdb.TTYResources",
              Locale.getDefault());
 
         for (int i = 0; i < argv.length; i++) {

@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.expr;
+package jdk.jdb;
 
 import com.sun.jdi.*;
 import java.util.*;

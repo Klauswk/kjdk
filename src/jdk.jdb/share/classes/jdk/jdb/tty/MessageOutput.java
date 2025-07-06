@@ -31,7 +31,7 @@
  * this sample code.
  */
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 import java.util.*;
 import java.text.MessageFormat;

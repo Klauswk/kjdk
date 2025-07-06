@@ -32,14 +32,14 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 /**
  * <p> This class represents the <code>ResourceBundle</code>
  * for the following package(s):
  *
  * <ol>
- * <li> jdk.jdb.tty
+ * <li> jdk.jdb
  * </ol>
  *
  */

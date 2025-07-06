@@ -32,7 +32,7 @@
  */
 
 
-package jdk.jdb.tty;
+package jdk.jdb;
 
 abstract class WatchpointSpec extends EventRequestSpec {
     final String fieldId;
