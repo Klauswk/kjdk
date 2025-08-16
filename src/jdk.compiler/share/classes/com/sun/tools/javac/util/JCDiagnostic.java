@@ -25,7 +25,9 @@
 
 package com.sun.tools.javac.util;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.tools.Diagnostic;
@@ -106,7 +108,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic error(
                 DiagnosticFlag flag, DiagnosticSource source, DiagnosticPosition pos, Error errorKey) {
-            JCDiagnostic diag = create(null, EnumSet.copyOf(defaultErrorFlags), source, pos, errorKey, Collections.emptyList());
+            JCDiagnostic diag = create(null, EnumSet.copyOf(defaultErrorFlags), source, pos, errorKey);
             if (flag != null) {
                 diag.setFlag(flag);
             }
@@ -139,7 +141,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
         public JCDiagnostic mandatoryWarning(
                 LintCategory lc,
                 DiagnosticSource source, DiagnosticPosition pos, Warning warningKey) {
-            return create(lc, EnumSet.of(DiagnosticFlag.MANDATORY), source, pos, warningKey, Collections.emptyList());
+            return create(lc, EnumSet.of(DiagnosticFlag.MANDATORY), source, pos, warningKey);
         }
 
         /**
@@ -166,7 +168,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic warning(
                 LintCategory lc, DiagnosticSource source, DiagnosticPosition pos, Warning warningKey) {
-            return create(lc, EnumSet.noneOf(DiagnosticFlag.class), source, pos, warningKey, Collections.emptyList());
+            return create(lc, EnumSet.noneOf(DiagnosticFlag.class), source, pos, warningKey);
         }
 
         /**
@@ -186,7 +188,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          *  @see MandatoryWarningHandler
          */
         public JCDiagnostic mandatoryNote(DiagnosticSource source, Note noteKey) {
-            return create(null, EnumSet.of(DiagnosticFlag.MANDATORY), source, null, noteKey, Collections.emptyList());
+            return create(null, EnumSet.of(DiagnosticFlag.MANDATORY), source, null, noteKey);
         }
 
         /**
@@ -207,7 +209,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic note(
                 DiagnosticSource source, DiagnosticPosition pos, Note noteKey) {
-            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, noteKey, Collections.emptyList());
+            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, noteKey);
         }
 
         /**
@@ -224,7 +226,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          *  @param fragmentKey    The key for the localized subdiagnostic message.
          */
         public JCDiagnostic fragment(Fragment fragmentKey) {
-            return create(null, EnumSet.noneOf(DiagnosticFlag.class), null, null, fragmentKey, Collections.emptyList());
+            return create(null, EnumSet.noneOf(DiagnosticFlag.class), null, null, fragmentKey);
         }
 
         /**
@@ -238,7 +240,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic create(
                 DiagnosticType kind, DiagnosticSource source, DiagnosticPosition pos, String key, Object... args) {
-            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, DiagnosticInfo.of(kind, prefix, key, args), Collections.emptyList());
+            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, DiagnosticInfo.of(kind, prefix, key, args));
         }
 
         /**
@@ -250,7 +252,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic create(
                 DiagnosticSource source, DiagnosticPosition pos, DiagnosticInfo diagnosticInfo) {
-            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, diagnosticInfo, Collections.emptyList());
+            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, diagnosticInfo);
         }
 
         /**
@@ -265,13 +267,9 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          */
         public JCDiagnostic create(DiagnosticType kind,
                 LintCategory lc, Set<DiagnosticFlag> flags, DiagnosticSource source, DiagnosticPosition pos, String key, Object... args) {
-            return create(lc, flags, source, pos, DiagnosticInfo.of(kind, prefix, key, args), Collections.emptyList());
+            return create(lc, flags, source, pos, DiagnosticInfo.of(kind, prefix, key, args));
         }
 
-        public JCDiagnostic create(DiagnosticType kind,
-                                   DiagnosticSource source, DiagnosticPosition pos, String key, java.util.List<String> suggestions, Object... args) {
-            return create(null, EnumSet.noneOf(DiagnosticFlag.class), source, pos, DiagnosticInfo.of(kind, prefix, key, args), suggestions);
-        }
         /**
          * Create a new diagnostic with given key.
          *  @param lc          The lint category, if applicable, or null
@@ -281,8 +279,8 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
          *  @param diagnosticInfo    The key for the localized message.
          */
         public JCDiagnostic create(
-                LintCategory lc, Set<DiagnosticFlag> flags, DiagnosticSource source, DiagnosticPosition pos, DiagnosticInfo diagnosticInfo, java.util.List<String> suggestions) {
-            return new JCDiagnostic(formatter, normalize(diagnosticInfo), lc, flags, source, pos, suggestions);
+                LintCategory lc, Set<DiagnosticFlag> flags, DiagnosticSource source, DiagnosticPosition pos, DiagnosticInfo diagnosticInfo) {
+            return new JCDiagnostic(formatter, normalize(diagnosticInfo), lc, flags, source, pos);
         }
         //where
         DiagnosticInfo normalize(DiagnosticInfo diagnosticInfo) {
@@ -341,8 +339,8 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
                               null,
                               EnumSet.noneOf(DiagnosticFlag.class),
                               null,
-                              null,
-                              Collections.emptyList());
+                              null
+                              );
     }
     //where
     @Deprecated
@@ -445,7 +443,6 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
     private final DiagnosticInfo diagnosticInfo;
     private final Set<DiagnosticFlag> flags;
     private final LintCategory lintCategory;
-    private final java.util.List<String> suggestions;
 
     /** source line position (set lazily) */
     private SourcePosition sourcePosition;
@@ -599,8 +596,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
                        LintCategory lc,
                        Set<DiagnosticFlag> flags,
                        DiagnosticSource source,
-                       DiagnosticPosition pos,
-                       java.util.List<String> suggestions) {
+                       DiagnosticPosition pos) {
         if (source == null && pos != null && pos.getPreferredPosition() != Position.NOPOS)
             throw new IllegalArgumentException();
 
@@ -610,7 +606,6 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
         this.flags = flags;
         this.source = source;
         this.position = pos;
-        this.suggestions = suggestions;
     }
 
     /**
@@ -823,8 +818,7 @@ public class JCDiagnostic implements Diagnostic<JavaFileObject> {
                   other.getLintCategory(),
                   other.flags,
                   other.getDiagnosticSource(),
-                  other.position,
-                  Collections.emptyList());
+                  other.position);
             this.subdiagnostics = subdiagnostics;
         }
 

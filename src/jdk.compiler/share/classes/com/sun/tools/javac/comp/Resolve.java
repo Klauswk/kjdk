@@ -53,14 +53,18 @@ import com.sun.tools.javac.util.DefinedBy.Api;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticFlag;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticType;
-import com.sun.tools.javac.util.JCDiagnostic.Warning;
-import com.sun.tools.javac.util.List;
 
-import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -4060,20 +4064,24 @@ public class Resolve {
                 }
             }
 
+            if (suggestions.size() > 5) {
+                suggestions = suggestions.subList(0, 4);
+                suggestions.add("and more....");
+            }
+
             if (hasLocation) {
                 return diags.create(dkind, log.currentSource(), pos,
                         errKey,
-                        suggestions,
                         kindname, idname, //symbol kindname, name
                         typeargtypes,
                         args(argtypes), //type parameters and arguments (if any)
-                        getLocationDiag(location, site)); //location kindname, type
+                        getLocationDiag(location, site), //location kindname, type
+                        suggestions);
             }
             else {
                 return diags.create(dkind, log.currentSource(), pos,
                         errKey, kindname, idname, //symbol kindname, name
                         typeargtypes,
-                        Collections.emptyList(),
                         args(argtypes)); //type parameters and arguments (if any)
             }
         }
