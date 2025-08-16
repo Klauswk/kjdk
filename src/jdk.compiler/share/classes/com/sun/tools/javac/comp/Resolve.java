@@ -4071,8 +4071,7 @@ public class Resolve {
 
             if (hasLocation) {
                 return diags.create(dkind, log.currentSource(), pos,
-                        errKey,
-                        kindname, idname, //symbol kindname, name
+                        errKey, kindname, idname, //symbol kindname, name
                         typeargtypes, args(argtypes), //type parameters and arguments (if any)
                         getLocationDiag(location, site), //location kindname, type
                         suggestions);
