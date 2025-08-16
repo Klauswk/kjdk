@@ -54,15 +54,10 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticFlag;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticType;
 import com.sun.tools.javac.util.JCDiagnostic.Warning;
+import com.sun.tools.javac.util.List;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -4052,16 +4047,34 @@ public class Resolve {
             KindName kindname = isConstructor ? KindName.CONSTRUCTOR : kind.absentKind();
             Name idname = isConstructor ? site.tsym.name : name;
             String errKey = getErrorKey(kindname, typeargtypes.nonEmpty(), hasLocation);
+            java.util.List<String> suggestions = new ArrayList<>();
+
+            if (KindName.CLASS == kindname) {
+                for (Package pack : Package.getPackages()) {
+                    try {
+                        String resolvedName = pack.getName() + "." + idname;
+                        Class.forName(resolvedName);
+                        suggestions.add(resolvedName);
+                    } catch (ClassNotFoundException e) {
+                    }
+                }
+            }
+
             if (hasLocation) {
                 return diags.create(dkind, log.currentSource(), pos,
-                        errKey, kindname, idname, //symbol kindname, name
-                        typeargtypes, args(argtypes), //type parameters and arguments (if any)
+                        errKey,
+                        suggestions,
+                        kindname, idname, //symbol kindname, name
+                        typeargtypes,
+                        args(argtypes), //type parameters and arguments (if any)
                         getLocationDiag(location, site)); //location kindname, type
             }
             else {
                 return diags.create(dkind, log.currentSource(), pos,
                         errKey, kindname, idname, //symbol kindname, name
-                        typeargtypes, args(argtypes)); //type parameters and arguments (if any)
+                        typeargtypes,
+                        Collections.emptyList(),
+                        args(argtypes)); //type parameters and arguments (if any)
             }
         }
         //where
