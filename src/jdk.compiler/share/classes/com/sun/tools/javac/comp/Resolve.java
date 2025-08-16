@@ -4073,16 +4073,14 @@ public class Resolve {
                 return diags.create(dkind, log.currentSource(), pos,
                         errKey,
                         kindname, idname, //symbol kindname, name
-                        typeargtypes,
-                        args(argtypes), //type parameters and arguments (if any)
+                        typeargtypes, args(argtypes), //type parameters and arguments (if any)
                         getLocationDiag(location, site), //location kindname, type
                         suggestions);
             }
             else {
                 return diags.create(dkind, log.currentSource(), pos,
                         errKey, kindname, idname, //symbol kindname, name
-                        typeargtypes,
-                        args(argtypes)); //type parameters and arguments (if any)
+                        typeargtypes, args(argtypes)); //type parameters and arguments (if any)
             }
         }
         //where
