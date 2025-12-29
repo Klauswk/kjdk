@@ -44,6 +44,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.*;
 
+import jdk.internal.org.jline.reader.*;
+
 public class TTY implements EventNotifier {
     /**
      * Commands that are repeatable on empty input.
@@ -650,9 +652,6 @@ public class TTY implements EventNotifier {
                 }
             }
         }
-        if (showPrompt) {
-            MessageOutput.printPrompt();
-        }
 
         if (LIST_RESET.contains(cmd)) {
             nextListTarget = null;
@@ -836,12 +835,21 @@ public class TTY implements EventNotifier {
             }
 
             // Process interactive commands.
-            MessageOutput.printPrompt();
-
             String lastLine = null;
             String lastCommandName = null;
+            LineReader lineReader = LineReaderBuilder.builder()
+              .build();
+
             while (true) {
-                String ln = in.readLine();
+                String ln = null;
+                try {
+                  ln = lineReader.readLine(MessageOutput.format("jdb prompt with no current thread")).trim();
+                } catch (UserInterruptException ex) {
+                  ex.printStackTrace();
+                } catch (EndOfFileException ex) {
+                  ex.printStackTrace();
+                }
+
                 if (ln == null) {
                     /*
                      *  Jdb is being shutdown because debuggee exited, ignore any 'null'
@@ -866,9 +874,7 @@ public class TTY implements EventNotifier {
                     // We want list auto-advance even if the user started with a listing target.
                     String newCommand = lastCommandName.equals("list") && nextListTarget != null ? "list" : lastLine;
                     executeCommand(new StringTokenizer(newCommand));
-                } else {
-                    MessageOutput.printPrompt();
-                }
+                } 
             }
         } catch (VMDisconnectedException e) {
             handler.handleDisconnectedException();
