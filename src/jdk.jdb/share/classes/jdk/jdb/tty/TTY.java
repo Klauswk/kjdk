@@ -652,6 +652,9 @@ public class TTY implements EventNotifier {
                 }
             }
         }
+        if (showPrompt) {
+            MessageOutput.printPrompt();
+        }
 
         if (LIST_RESET.contains(cmd)) {
             nextListTarget = null;
@@ -835,15 +838,16 @@ public class TTY implements EventNotifier {
             }
 
             // Process interactive commands.
-            String lastLine = null;
-            String lastCommandName = null;
+            MessageOutput.printPrompt();
             LineReader lineReader = LineReaderBuilder.builder()
               .build();
 
+            String lastLine = null;
+            String lastCommandName = null;
             while (true) {
                 String ln = null;
                 try {
-                  ln = lineReader.readLine(MessageOutput.format("jdb prompt with no current thread")).trim();
+                  ln = lineReader.readLine().trim();
                 } catch (UserInterruptException ex) {
                   ex.printStackTrace();
                 } catch (EndOfFileException ex) {
@@ -874,7 +878,9 @@ public class TTY implements EventNotifier {
                     // We want list auto-advance even if the user started with a listing target.
                     String newCommand = lastCommandName.equals("list") && nextListTarget != null ? "list" : lastLine;
                     executeCommand(new StringTokenizer(newCommand));
-                } 
+                } else {
+                    MessageOutput.printPrompt();
+                }
             }
         } catch (VMDisconnectedException e) {
             handler.handleDisconnectedException();
