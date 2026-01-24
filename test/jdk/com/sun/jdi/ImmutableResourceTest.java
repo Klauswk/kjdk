@@ -26,11 +26,11 @@
  * @bug        6287579
  * @summary    SubClasses of ListResourceBundle should fix getContents()
  *
- * @modules jdk.jdi/com.sun.tools.example.debug.tty
+ * @modules jdk.jdb/jdk.jdb.tty
  *
- * @compile --add-exports jdk.jdi/com.sun.tools.example.debug.tty=ALL-UNNAMED -g ImmutableResourceTest.java
+ * @compile --add-exports jdk.jdb/jdk.jdb.tty=ALL-UNNAMED -g ImmutableResourceTest.java
  *
- * @run main/othervm --add-exports jdk.jdi/com.sun.tools.example.debug.tty=ALL-UNNAMED ImmutableResourceTest
+ * @run main/othervm --add-exports jdk.jdb/jdk.jdb.tty=ALL-UNNAMED ImmutableResourceTest
  */
 
 import java.util.ResourceBundle;
@@ -39,8 +39,8 @@ public class ImmutableResourceTest {
 
     public static void main(String[] args) throws Exception {
         /* Reach under the covers and get the message strings */
-        com.sun.tools.example.debug.tty.TTYResources ttyr =
-            new com.sun.tools.example.debug.tty.TTYResources ();
+        jdk.jdb.tty.TTYResources ttyr =
+            new jdk.jdb.tty.TTYResources ();
         Object [][] testData = ttyr.getContents();
 
         /* Shred our copy of the message strings */
